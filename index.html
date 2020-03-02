@@ -108,7 +108,7 @@
                 <thead>
                   <tr>
                     <th style="width: 2%;">
-                      <input type="checkbox">
+                      <input class="all-check" type="checkbox">
                     </th>
                     <th style="width: 10%;">姓名</th>
                     <th style="width: 10%;">学号</th>
@@ -257,7 +257,7 @@
   </div>
   <!-- Modal -->
   <script src="./js/ls.js"></script>
-  <script src="./js/json.js"></script>
+   <!--<script src="./js/json.js"></script> -->
   <script>
     $(function () {
 
@@ -265,13 +265,151 @@
       var classIndex = 0;
       // 右侧学生所在行的索引
       var trIndex = 0;
+      var class_json = {
+      "resultCode": 200,
+      "resultMessage": "ok",
+      "data": [
+          {
+              "id": "1",
+              "classname": "01班"
+          },
+          {
+              "id": "2",
+              "classname": "02班"
+          }
+      ]
+  };
+      var students_json_01 = {
+        "resultCode": 200,
+        "resultMessage": "ok",
+        "data": [
+        {
+            "id": "1",
+            "sno": "001",
+            "truename": "张三",
+            "age": "20",
+            "gender": "m",
+            "tel": "13289069832",
+            "major": "英语",
+            "classid": "1"
+        },
+        {
+            "id": "2",
+            "sno": "002",
+            "truename": "张三丰",
+            "age": "20",
+            "gender": "m",
+            "tel": "13289069832",
+            "major": "汉语",
+            "classid": "1"
+        },
+        {
+            "id": "3",
+            "sno": "003",
+            "truename": "张无忌",
+            "age": "19",
+            "gender": "m",
+            "tel": "13289069832",
+            "major": "软件",
+            "classid": "1"
+        },
+        {
+            "id": "4",
+            "sno": "004",
+            "truename": "周芷若",
+            "age": "18",
+            "gender": "f",
+            "tel": "13289069832",
+            "major": "网络",
+            "classid": "1"
+        }
+    ]
+};
+
+var students_json_02 = {
+    "resultCode": 200,
+    "resultMessage": "ok",
+    "data": [
+        {
+            "id": "1",
+            "sno": "005",
+            "truename": "黄渤",
+            "age": "20",
+            "gender": "m",
+            "tel": "13289069832",
+            "major": "英语",
+            "classid": "2"
+        },
+        {
+            "id": "2",
+            "sno": "006",
+            "truename": "黄磊",
+            "age": "20",
+            "gender": "m",
+            "tel": "13289069832",
+            "major": "汉语",
+            "classid": "2"
+        },
+        {
+            "id": "3",
+            "sno": "007",
+            "truename": "孙红雷",
+            "age": "19",
+            "gender": "m",
+            "tel": "13289069832",
+            "major": "软件",
+            "classid": "2"
+        },
+        {
+            "id": "4",
+            "sno": "008",
+            "truename": "张艺兴",
+            "age": "18",
+            "gender": "m",
+            "tel": "13289069832",
+            "major": "网络",
+            "classid": "2"
+        },
+        {
+            "id": "5",
+            "sno": "009",
+            "truename": "罗志祥",
+            "age": "18",
+            "gender": "m",
+            "tel": "13289069832",
+            "major": "网络",
+            "classid": "2"
+        },
+        {
+            "id": "5",
+            "sno": "010",
+            "truename": "王迅",
+            "age": "18",
+            "gender": "f",
+            "tel": "13289069832",
+            "major": "电子",
+            "classid": "2"
+        }
+    ]
+ }
       // 所有的学生信息来自json.js
       var studnetArr = [students_json_01.data, students_json_02.data];
-
       showUserName();
       showCurrentClass();
       showStuInfo();
+      //将学生信息存在本地
+      saveStuInfo(false);
 
+      //学生信息数据的本地持久存储
+      function saveStuInfo(isSet){
+        //没有localStorage，或者有数据需要存到本地
+        if(!localStorage.getItem('stuInfo')|| isSet){
+          var info = JSON.stringify(studnetArr);
+          localStorage.setItem('stuInfo',info);        
+        }
+        studnetArr = JSON.parse (localStorage.getItem('stuInfo'));
+        showStuInfo();
+      }
       // 显示当前用户
       function showUserName () {
         var uname = get_value_from_storage('USERID');
@@ -306,7 +444,7 @@
       function showStuInfo () {
         var studnetContent = '';
         for(var i = 0; i < studnetArr[classIndex].length; i ++) {
-          studnetContent += "<tr data-index="+i+"><td><input type='checkbox'></td>"+
+          studnetContent += "<tr data-index="+i+"><td><input type='checkbox' class='stu-check'></td>"+
             " <td>" + studnetArr[classIndex][i].truename + "</td>" +
             " <td>" + studnetArr[classIndex][i].sno + "</td>" +
             " <td>" + studnetArr[classIndex][i].tel + "</td> " +
@@ -381,8 +519,29 @@
         studnetArr[classIndex].splice(trIndex * 1, 1);
         // 用新的数据更新页面
         showStuInfo();
+        saveStuInfo(true);
         // 关闭模态框
         $('#delModal').modal('hide');
+      })
+      
+      //点击全选按钮
+      $('.all-check').change(function(){
+        var flag = $(this).prop('checked');
+        //$()each是备选方案
+        //$('.stu-check').each(function(){
+        // $(this).prop('checked',flag);
+        // })
+        $('.stu-check').prop('checked',flag);
+      })
+      //点击每一项
+      $('.stu-check').on('change',function(){
+        if($('.stu-check:checked').length == $('.stu-check').length){
+          $('.all-check').prop('checked',true);
+        }else{
+          $('.all-check').prop('checked',false);
+        }
+        //追求极致简洁的代码,损失了可读性
+        //$('.all-check').prop('checked',$('.stu-check:checked').length == $('.stu-check').length);
       })
 
     })
